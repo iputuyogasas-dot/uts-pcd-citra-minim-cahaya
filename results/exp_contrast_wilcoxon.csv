@@ -1,0 +1,10 @@
+a,b,metric,n,median_diff,mean_diff,a_wins,p_value,better,significant_0.05
+adaptive_gamma+clahe,adaptive_gamma,psnr,30,-0.18624993556887404,-0.24608225753372212,7,0.0003449581563472748,adaptive_gamma,True
+adaptive_gamma+clahe,adaptive_gamma,ssim,30,-0.000791709683486852,0.0005849018311975189,14,0.8078304156661034,adaptive_gamma,False
+adaptive_gamma+clahe,adaptive_gamma,delta_e,30,0.09220317932900901,0.12527461380732935,12,0.13473508320748806,adaptive_gamma,False
+adaptive_gamma+clahe,gamma_0.5,psnr,30,0.41836791145809205,0.857712107823117,22,0.005382779985666275,adaptive_gamma+clahe,True
+adaptive_gamma+clahe,gamma_0.5,ssim,30,0.010521854695019317,0.012559389485906106,16,0.09610157273709774,adaptive_gamma+clahe,False
+adaptive_gamma+clahe,gamma_0.5,delta_e,30,-1.2520672325224513,-1.4762471203478393,23,0.00031275488436222076,adaptive_gamma+clahe,True
+adaptive_gamma+clahe,baseline,psnr,30,6.513443609822692,6.59825894911171,30,1.862645149230957e-09,adaptive_gamma+clahe,True
+adaptive_gamma+clahe,baseline,ssim,30,0.3847278637139778,0.3685044691742728,30,1.862645149230957e-09,adaptive_gamma+clahe,True
+adaptive_gamma+clahe,baseline,delta_e,30,-11.469227751064833,-12.058817658058704,30,1.862645149230957e-09,adaptive_gamma+clahe,True

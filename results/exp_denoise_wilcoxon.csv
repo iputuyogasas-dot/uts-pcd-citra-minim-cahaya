@@ -1,0 +1,10 @@
+a,b,metric,n,median_diff,mean_diff,a_wins,p_value,better,significant_0.05
+none,median_3,psnr,30,0.024838614054647934,0.03111810582317383,26,3.7904828786849976e-06,none,True
+none,median_3,ssim,30,0.03342315413083502,0.03274717738137437,27,4.6566128730773926e-08,none,True
+none,median_3,delta_e,30,-0.03683182715355571,-0.03520359959258782,27,3.855675458908081e-07,none,True
+none,nlm_h3,psnr,30,0.014613528709416457,0.02195939307151035,21,0.023410143330693245,none,True
+none,nlm_h3,ssim,30,0.04434304356479185,0.0433276017636078,29,5.587935447692871e-09,none,True
+none,nlm_h3,delta_e,30,-0.0477948245108033,-0.05439121367536923,25,7.994472980499268e-06,none,True
+median_3,median_3_scratch,psnr,30,0.0,0.0,0,1.0,median_3_scratch,False
+median_3,median_3_scratch,ssim,30,0.0,0.0,0,1.0,median_3_scratch,False
+median_3,median_3_scratch,delta_e,30,0.0,0.0,0,1.0,median_3_scratch,False

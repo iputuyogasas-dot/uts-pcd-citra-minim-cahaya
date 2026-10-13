@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "locked": true,
+    "locked_on": "2026-10-13",
+    "tuned_on": "dev (s01, s03, s04, s06, s07, s08), 30 citra gelap, skala kerja 1/4",
+    "source": "results/tuning/best_config.json (experiments/tune.py)",
+    "rationale": "docs/parameter_rationale.md"
+  },
+  "color_space": "ycrcb",
+  "order": "denoise_first",
+  "white_balance": null,
+  "denoise": {
+    "method": "none"
+  },
+  "contrast": [
+    {
+      "method": "adaptive_gamma",
+      "target": 0.38
+    },
+    {
+      "method": "clahe",
+      "clip": 1.0,
+      "tile": 16
+    }
+  ],
+  "sharpen": null,
+  "saturation": 1.5
+}

@@ -1,0 +1,6 @@
+langkah,pemenang
+1_gamma,agamma_t0.38
+2_clahe,clahe_c1.0_t16
+3_kernel,none
+4_unsharp,unsharp_s0.5_a0.0
+5_saturation,sat_1.5

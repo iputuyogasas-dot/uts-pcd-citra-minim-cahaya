@@ -1,0 +1,1243 @@
+{
+  "project": "Pipeline Peningkatan Kualitas Citra Minim Cahaya dan Berderau",
+  "source": "docs/PRD.md (Draf v1)",
+  "generated": "2026-10-13",
+  "status_values": [
+    "todo",
+    "in_progress",
+    "done",
+    "blocked"
+  ],
+  "roles": {
+    "ketua": "Ketua dan integrator",
+    "data": "Penanggung jawab data",
+    "algoritma": "Pengembang algoritma",
+    "penguji": "Penguji dan penulis"
+  },
+  "dataset_findings": {
+    "path": "DATASET NEW/",
+    "summary": "Hasil pemeriksaan awal (2026-10-13) atas 60 file di DATASET NEW/. Dipakai sebagai masukan untuk task audit dan laporan; tetap harus diverifikasi ulang oleh skrip audit.",
+    "files": "60 JPEG: s01-s10, masing-masing sXX_acuan.jpg + sXX_k1..k5.jpg. Lengkap, penamaan sesuai PRD 5.1.",
+    "resolution": "Semua 2304x4096 (portrait), RGB, ±150 MB total. Orientasi EXIF tidak diset (0).",
+    "exif": {
+      "acuan": "ISO 800, 1/20 s (tidak tercantum di PRD 5.2, perlu ditambahkan ke laporan)",
+      "K1_K2_K4_K5": "ISO 100, 1/30 s (sesuai PRD)",
+      "K3": "ISO 3200, 1/90 s (PRD menulis 1/100, perlu dikoreksi)"
+    },
+    "mean_luminance_Y_0_255": {
+      "acuan": "85.6-119.0",
+      "K1": "22.4-45.4",
+      "K2": "16.0-32.3",
+      "K3": "18.1-34.7",
+      "K4": "12.2-30.6 (rata-rata paling gelap)",
+      "K5": "13.7-36.5 (tidak lebih gelap dari K2, berlawanan dengan dugaan PRD 9.4)"
+    },
+    "alignment": "Phase correlation pada resolusi 256 px: pergeseran global < 1 px di seluruh 50 pasangan. Contact sheet menunjukkan posisi objek sama di acuan dan K1-K5, termasuk s08-s10. Risiko 'objek bergeser' di PRD 5.3 kemungkinan tidak berlaku untuk DATASET NEW, tapi wajib dikonfirmasi pada resolusi penuh.",
+    "scene_differences": [
+      "Warna acuan jauh lebih hangat (kayu oranye) daripada citra gelap yang cenderung netral/keabu-abuan. White balance berbeda sehingga ΔE akan tinggi walau kecerahan sudah benar.",
+      "K4 memiliki bayangan keras dari lampu samping yang tidak ada di acuan.",
+      "K5 memiliki bayangan tirai besar di bagian bawah bingkai yang tidak ada di acuan.",
+      "Pola pantulan cahaya di meja berbeda antar kondisi, sehingga korelasi piksel rendah walau kamera tidak bergeser."
+    ],
+    "privacy": "Isi adegan berupa benda di atas meja (HDD, HT, remote, dompet, keyboard, tas, ponsel, kotak, wadah). Tidak terlihat wajah atau plat nomor.",
+    "ai_policy": "Dosen mengizinkan penggunaan AI 100% (koreksi atas PRD Draf v1 bagian 8 dan 15)."
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Persiapan proyek",
+      "prd_schedule_stage": 1
+    },
+    {
+      "id": "P1",
+      "name": "Dataset, audit, dan split",
+      "prd_schedule_stage": 1
+    },
+    {
+      "id": "P2",
+      "name": "Metrik dan baseline",
+      "prd_schedule_stage": 1
+    },
+    {
+      "id": "P3",
+      "name": "Dua operasi dari nol dan verifikasi",
+      "prd_schedule_stage": 2
+    },
+    {
+      "id": "P4",
+      "name": "Modul pipeline",
+      "prd_schedule_stage": 3
+    },
+    {
+      "id": "P5",
+      "name": "Eksperimen dan tuning (hanya dev)",
+      "prd_schedule_stage": 3
+    },
+    {
+      "id": "P6",
+      "name": "Evaluasi akhir (hanya uji) dan analisis kegagalan",
+      "prd_schedule_stage": 4
+    },
+    {
+      "id": "P7",
+      "name": "Integrasi dan reproduksibilitas",
+      "prd_schedule_stage": 4
+    },
+    {
+      "id": "P8",
+      "name": "Laporan, demo, dan pengumpulan",
+      "prd_schedule_stage": 5
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T01",
+      "phase": "P0",
+      "title": "Lengkapi isian kosong di PRD dan bagi peran",
+      "description": "Isi nama kelompok, jumlah anggota, tenggat baru, nama per peran (PRD bagian 13), dan tanggal target tiap tahap (bagian 14). Sisakan 20-25% waktu untuk tahap 5.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [],
+      "prd_refs": [
+        "Tabel header",
+        "13",
+        "14"
+      ],
+      "outputs": [
+        "docs/PRD.md"
+      ],
+      "acceptance_criteria": [
+        "Tidak ada lagi placeholder [isi ...] atau [tanggal] di PRD",
+        "Setiap anggota punya satu peran utama"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T02",
+      "phase": "P0",
+      "title": "Inisialisasi repository dan struktur folder",
+      "description": "git init, buat struktur sesuai PRD 12 (data/, src/, experiments/, results/, configs/), .gitignore (results/ hasil besar, __pycache__, .venv). Tentukan apakah citra ikut di-commit (tiap file ±2.5 MB, total ±150 MB) atau hanya contoh + tautan unduh.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [],
+      "prd_refs": [
+        "12",
+        "10"
+      ],
+      "outputs": [
+        ".gitignore",
+        "data/",
+        "src/",
+        "experiments/",
+        "results/",
+        "configs/"
+      ],
+      "acceptance_criteria": [
+        "Struktur folder ada dan ter-commit",
+        "Keputusan penyimpanan dataset tercatat di README"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T03",
+      "phase": "P0",
+      "title": "Buat requirements.txt dan lingkungan Python",
+      "description": "Daftar pustaka dengan versi terkunci: numpy, opencv-python, scikit-image, matplotlib, scipy (Wilcoxon), pandas (tabel/CSV), pytest.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T02"
+      ],
+      "prd_refs": [
+        "Tabel header",
+        "10"
+      ],
+      "outputs": [
+        "requirements.txt"
+      ],
+      "acceptance_criteria": [
+        "pip install -r requirements.txt berhasil di venv bersih",
+        "Tidak ada pustaka deep learning"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T04",
+      "phase": "P0",
+      "title": "Buat src/config.py",
+      "description": "Konstanta terpusat: DATA_DIR (default 'DATASET NEW/' atau data/raw/), SPLIT_PATH, SEED=42, peta kondisi K1-K5 ke label (Redup, Sangat gelap, Berderau, Tidak merata, Remang), dan WORK_SCALE. Citra 2304x4096 (9.4 MP) membuat median dari nol dan NLM sangat lambat, jadi tetapkan skala kerja untuk eksperimen (misalnya 1/4 = 576x1024) dan catat alasannya.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T02"
+      ],
+      "prd_refs": [
+        "5.2",
+        "5.5",
+        "11"
+      ],
+      "outputs": [
+        "src/config.py"
+      ],
+      "acceptance_criteria": [
+        "Semua skrip lain membaca path dan seed dari config.py",
+        "Nilai WORK_SCALE dan alasannya tertulis di komentar dan laporan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T05",
+      "phase": "P1",
+      "title": "src/dataset.py: baca dataset dan validasi kelengkapan (F1)",
+      "description": "Fungsi list_pairs() yang mem-parse nama sXX_acuan / sXX_kN, mengembalikan record (scenario, condition, dark_path, ref_path). Validasi: 10 skenario × (1 acuan + 5 gelap), semua ukuran sama, file bisa dibaca. Fungsi load_image(path, scale) yang mengonversi BGR ke RGB.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T04"
+      ],
+      "prd_refs": [
+        "5.1",
+        "F1"
+      ],
+      "outputs": [
+        "src/dataset.py"
+      ],
+      "acceptance_criteria": [
+        "list_pairs() mengembalikan tepat 50 pasangan",
+        "Error yang jelas bila file hilang atau ukuran berbeda"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T06",
+      "phase": "P1",
+      "title": "Ekstrak metadata EXIF ke data/metadata.csv",
+      "description": "Simpan ISO, waktu rana, ukuran, dan rata-rata luminans per file. Temuan awal: acuan ISO 800 1/20 s; K3 ISO 3200 1/90 s (PRD menulis 1/100). Perbarui tabel PRD 5.2 dan bagian Dataset laporan dengan angka sebenarnya.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T05"
+      ],
+      "prd_refs": [
+        "5.2",
+        "5.4"
+      ],
+      "outputs": [
+        "data/metadata.csv",
+        "docs/PRD.md"
+      ],
+      "acceptance_criteria": [
+        "60 baris metadata",
+        "Pengaturan kamera acuan terdokumentasi",
+        "Selisih K3 1/90 vs 1/100 dikoreksi"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T07",
+      "phase": "P1",
+      "title": "audit_dataset.py: periksa keselarasan pasangan",
+      "description": "Untuk tiap pasangan: (1) pergeseran global dengan cv2.phaseCorrelate pada citra yang dinormalisasi kecerahannya, (2) cv2.findTransformECC untuk rotasi/skala, (3) peta korelasi lokal pada gradien untuk mendeteksi objek yang bergeser. Simpan results/audit.csv dan panel overlay. Pemeriksaan awal: pergeseran < 1 px di 256 px; konfirmasi di resolusi penuh dan tutup risiko PRD 5.3 jika lolos.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T05"
+      ],
+      "prd_refs": [
+        "5.3",
+        "11"
+      ],
+      "outputs": [
+        "audit_dataset.py",
+        "results/audit.csv",
+        "results/audit/*.png"
+      ],
+      "acceptance_criteria": [
+        "Setiap dari 50 pasangan punya nilai shift dan status lolos/gagal dengan ambang yang ditulis",
+        "Pasangan gagal diputuskan: foto ulang, mask, atau dikeluarkan (dicatat)"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T08",
+      "phase": "P1",
+      "title": "Dokumentasikan perbedaan adegan selain pergeseran",
+      "description": "Catat dan beri contoh gambar: (a) white balance acuan hangat vs citra gelap netral, (b) bayangan keras di K4, (c) bayangan tirai di K5, (d) pola pantulan meja berbeda. Putuskan apakah perlu mask (F4) untuk area bayangan K4/K5 dan apakah koreksi white balance dijadikan eksperimen (lihat T27).",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T07"
+      ],
+      "prd_refs": [
+        "5.3",
+        "9.4",
+        "11"
+      ],
+      "outputs": [
+        "docs/dataset_notes.md",
+        "results/figures/scene_differences.png"
+      ],
+      "acceptance_criteria": [
+        "Keempat perbedaan didokumentasikan dengan gambar",
+        "Keputusan tentang mask tertulis beserta alasannya"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T09",
+      "phase": "P1",
+      "title": "Periksa privasi",
+      "description": "Periksa ke-60 citra untuk wajah, plat nomor, atau informasi pribadi (layar ponsel, label alamat). Pemeriksaan awal tidak menemukan wajah/plat; konfirmasi dan catat di laporan.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T05"
+      ],
+      "prd_refs": [
+        "5.6",
+        "16"
+      ],
+      "outputs": [
+        "docs/dataset_notes.md"
+      ],
+      "acceptance_criteria": [
+        "Pernyataan privasi tertulis; area sensitif (jika ada) disamarkan di gambar laporan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T10",
+      "phase": "P1",
+      "title": "src/split.py: buat dan kunci split.json per skenario (F2)",
+      "description": "Acak 10 skenario dengan seed 42, ambil 6 untuk dev dan 4 untuk uji. Tulis data/split.json berisi daftar skenario, seed, dan tanggal. Skrip menolak menimpa file yang sudah ada kecuali dengan flag --force. Commit sekali, setelah itu jangan diubah.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T05"
+      ],
+      "prd_refs": [
+        "5.5",
+        "F2",
+        "11"
+      ],
+      "outputs": [
+        "src/split.py",
+        "data/split.json"
+      ],
+      "acceptance_criteria": [
+        "6 skenario dev (30 citra gelap), 4 skenario uji (20 citra gelap)",
+        "Tidak ada skenario yang muncul di kedua bagian",
+        "split.json ter-commit dan ditandai final"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T11",
+      "phase": "P1",
+      "title": "Statistik dan gambar dataset untuk laporan",
+      "description": "Contact sheet 10×6, histogram luminans per kondisi, tabel rata-rata luminans per kondisi. Catat bahwa K4 rata-rata paling gelap dan K5 tidak lebih gelap dari K2, berbeda dengan hipotesis PRD 9.4.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T06"
+      ],
+      "prd_refs": [
+        "5",
+        "10"
+      ],
+      "outputs": [
+        "results/figures/contact_sheet.png",
+        "results/figures/hist_per_condition.png",
+        "results/dataset_stats.csv"
+      ],
+      "acceptance_criteria": [
+        "Gambar dan tabel siap dipakai di bagian Dataset laporan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T12",
+      "phase": "P2",
+      "title": "src/metrics.py: PSNR, SSIM, ΔE2000 dengan mask opsional (F4)",
+      "description": "psnr(pred, ref, mask=None) dengan data_range=255; ssim(pred, ref, mask=None) pada RGB (channel_axis) atau Y (catat pilihannya), dan bila mask dipakai, rata-rata peta SSIM hanya di dalam mask; delta_e(pred, ref, mask=None) memakai skimage.color.rgb2lab + deltaE_ciede2000, mengembalikan rata-rata.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T04"
+      ],
+      "prd_refs": [
+        "1",
+        "6",
+        "F4"
+      ],
+      "outputs": [
+        "src/metrics.py"
+      ],
+      "acceptance_criteria": [
+        "Ketiga metrik menerima uint8 RGB dan mask boolean opsional",
+        "Ruang warna dan data_range terdokumentasi di docstring"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T13",
+      "phase": "P2",
+      "title": "Unit test metrik",
+      "description": "Uji: citra identik → PSNR inf/sangat tinggi, SSIM 1, ΔE 0; derau yang diketahui → PSNR sesuai rumus; mask kosong menimbulkan error; hasil PSNR cocok dengan skimage.metrics.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T12"
+      ],
+      "prd_refs": [
+        "F4"
+      ],
+      "outputs": [
+        "tests/test_metrics.py"
+      ],
+      "acceptance_criteria": [
+        "pytest lulus"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T14",
+      "phase": "P2",
+      "title": "src/evaluate.py: evaluasi per pasangan dan agregasi (F5)",
+      "description": "evaluate(method_fn, subset='dev'|'test'|'all') menjalankan metode pada pasangan dari split, menghitung metrik dan waktu, lalu mengembalikan DataFrame per citra. summarize(df) menghasilkan rata-rata ± simpangan baku keseluruhan dan per kondisi K1-K5. Fungsi cetak tabel ke terminal dan simpan CSV.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T05",
+        "T10",
+        "T12"
+      ],
+      "prd_refs": [
+        "F5",
+        "9.3"
+      ],
+      "outputs": [
+        "src/evaluate.py"
+      ],
+      "acceptance_criteria": [
+        "Tabel menampilkan kolom PSNR, SSIM, ΔE, waktu dalam format mean ± std",
+        "Baris per kondisi dan baris keseluruhan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T15",
+      "phase": "P2",
+      "title": "Hitung baseline (citra mentah vs acuan)",
+      "description": "Metode identitas (citra gelap apa adanya) di dev dan uji. Ini titik nol untuk semua klaim peningkatan.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T14"
+      ],
+      "prd_refs": [
+        "3.2",
+        "9.3"
+      ],
+      "outputs": [
+        "results/baseline_dev.csv",
+        "results/baseline_test.csv"
+      ],
+      "acceptance_criteria": [
+        "Baseline per kondisi tersedia untuk dev dan uji"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T16",
+      "phase": "P2",
+      "title": "Metrik tanpa acuan (F12)",
+      "description": "Rata-rata luminans, entropi, dan simpangan baku per citra sebagai pelengkap, terutama untuk K4/K5 yang adegannya berbeda dari acuan (bayangan).",
+      "role": "penguji",
+      "priority": "opsional",
+      "depends_on": [
+        "T12"
+      ],
+      "prd_refs": [
+        "F12"
+      ],
+      "outputs": [
+        "src/metrics.py"
+      ],
+      "acceptance_criteria": [
+        "Kolom metrik tanpa acuan ikut muncul di CSV evaluasi"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T17",
+      "phase": "P3",
+      "title": "from_scratch.equalize_hist (NumPy saja)",
+      "description": "Histogram 256 bin, CDF, LUT dengan rumus yang sama dengan OpenCV (berbasis cdf_min), terapkan ke citra uint8 satu kanal. Ditulis dengan bantuan AI (diizinkan dosen); anggota pengembang algoritma wajib memahami dan bisa menjelaskannya.",
+      "role": "algoritma",
+      "priority": "wajib",
+      "depends_on": [
+        "T04"
+      ],
+      "prd_refs": [
+        "8",
+        "15"
+      ],
+      "outputs": [
+        "src/from_scratch.py"
+      ],
+      "acceptance_criteria": [
+        "Tidak ada import cv2/skimage di from_scratch.py",
+        "Menangani citra konstan tanpa pembagian nol"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "T18",
+      "phase": "P3",
+      "title": "from_scratch.median_filter (NumPy saja)",
+      "description": "Kernel ganjil k, padding mode 'edge' (setara BORDER_REPLICATE pada cv2.medianBlur), vektorisasi dengan numpy.lib.stride_tricks.sliding_window_view lalu np.partition (elemen tengah). Proses per kanal untuk RGB, dan per potongan baris (chunk) agar memori cukup pada 2304x4096. Ditulis dengan bantuan AI (diizinkan dosen); anggota pengembang algoritma wajib memahami dan bisa menjelaskannya.",
+      "role": "algoritma",
+      "priority": "wajib",
+      "depends_on": [
+        "T04"
+      ],
+      "prd_refs": [
+        "8",
+        "11",
+        "15"
+      ],
+      "outputs": [
+        "src/from_scratch.py"
+      ],
+      "acceptance_criteria": [
+        "Mendukung 1 kanal dan 3 kanal, k = 3, 5, 7",
+        "Berjalan di resolusi kerja tanpa kehabisan memori"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "T19",
+      "phase": "P3",
+      "title": "Unit test kasus tepi operasi dari nol",
+      "description": "Citra konstan, satu kanal, ukuran ganjil dan genap, kernel berbeda, citra 1×N; bandingkan dengan cv2.equalizeHist dan cv2.medianBlur.",
+      "role": "algoritma",
+      "priority": "wajib",
+      "depends_on": [
+        "T17",
+        "T18"
+      ],
+      "prd_refs": [
+        "8"
+      ],
+      "outputs": [
+        "tests/test_from_scratch.py",
+        "pytest.ini"
+      ],
+      "acceptance_criteria": [
+        "pytest lulus; selisih yang diharapkan (jika ada) diuji dengan toleransi eksplisit"
+      ],
+      "status": "done",
+      "notes": "57 tes lulus (2026-10-13): selisih 0 terhadap cv2.equalizeHist dan cv2.medianBlur, termasuk citra konstan, 1xN, ukuran ganjil/genap, k=3/5/7/9, RGB. Di citra asli s01_k3 resolusi penuh: selisih 0; median k=3 2.15 s vs OpenCV 0.009 s, k=5 6.4 s vs 0.04 s; HE 68 ms vs 8 ms."
+    },
+    {
+      "id": "T20",
+      "phase": "P3",
+      "title": "experiments/verify_from_scratch.py (F7)",
+      "description": "Jalankan kedua operasi versi sendiri dan versi pustaka pada ≥ 10 citra (misalnya kanal Y dari 10 citra gelap lintas kondisi). Catat selisih piksel maksimum, rata-rata, jumlah piksel berbeda, dan waktu eksekusi (median dari beberapa kali jalan).",
+      "role": "algoritma",
+      "priority": "wajib",
+      "depends_on": [
+        "T19",
+        "T05"
+      ],
+      "prd_refs": [
+        "F7",
+        "8",
+        "3.2"
+      ],
+      "outputs": [
+        "experiments/verify_from_scratch.py",
+        "results/verification.csv"
+      ],
+      "acceptance_criteria": [
+        "≥ 10 baris per operasi",
+        "Kolom max_diff, mean_diff, t_ours, t_lib, speed_ratio"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T21",
+      "phase": "P3",
+      "title": "Tulis penjelasan hasil verifikasi",
+      "description": "Jelaskan sumber selisih (pembulatan LUT, penanganan tepi) dan alasan versi sendiri lebih lambat (alokasi jendela, np.partition per jendela vs algoritma median berbasis histogram + SIMD di OpenCV). Bahan untuk bagian 5 laporan.",
+      "role": "algoritma",
+      "priority": "wajib",
+      "depends_on": [
+        "T20"
+      ],
+      "prd_refs": [
+        "8",
+        "10"
+      ],
+      "outputs": [
+        "docs/report/05_from_scratch.md"
+      ],
+      "acceptance_criteria": [
+        "Setiap selisih tak nol punya penjelasan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T22",
+      "phase": "P4",
+      "title": "src/preprocess.py",
+      "description": "Baca citra, validasi ukuran, resize ke WORK_SCALE (INTER_AREA), konversi RGB ↔ YCrCb/Lab/HSV, pisah dan gabung kanal luminans-kromatik.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T04",
+        "T05"
+      ],
+      "prd_refs": [
+        "6 tahap 1"
+      ],
+      "outputs": [
+        "src/preprocess.py"
+      ],
+      "acceptance_criteria": [
+        "Konversi bolak-balik RGB→YCrCb→RGB tanpa perubahan berarti (selisih ≤ 1-2)"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T23",
+      "phase": "P4",
+      "title": "enhance.py: metode reduksi derau",
+      "description": "denoise_median (opsi versi pustaka atau versi sendiri), denoise_gaussian, denoise_bilateral, denoise_nlm (cv2.fastNlMeansDenoising / Colored). Semua dengan parameter eksplisit.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T22",
+        "T18"
+      ],
+      "prd_refs": [
+        "6 tahap 2",
+        "9.1"
+      ],
+      "outputs": [
+        "src/enhance.py"
+      ],
+      "acceptance_criteria": [
+        "Empat metode punya antarmuka sama f(img, **params) -> img"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T24",
+      "phase": "P4",
+      "title": "enhance.py: metode perbaikan kontras",
+      "description": "gamma (LUT), ekualisasi histogram (opsi versi sendiri), CLAHE (clip, tile), Retinex SSR/MSR (log, Gaussian multi-skala, normalisasi), gamma adaptif berbasis rata-rata luminans.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T22",
+        "T17"
+      ],
+      "prd_refs": [
+        "6 tahap 3",
+        "9.1"
+      ],
+      "outputs": [
+        "src/enhance.py"
+      ],
+      "acceptance_criteria": [
+        "Setiap metode bisa diterapkan ke kanal Y saja atau ke tiap kanal RGB"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T25",
+      "phase": "P4",
+      "title": "enhance.py: pasca-proses unsharp mask",
+      "description": "Unsharp mask dengan sigma dan amount pada kanal luminans, clip ke [0,255].",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T22"
+      ],
+      "prd_refs": [
+        "6 tahap 4"
+      ],
+      "outputs": [
+        "src/enhance.py"
+      ],
+      "acceptance_criteria": [
+        "amount=0 menghasilkan citra identik"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T26",
+      "phase": "P4",
+      "title": "enhance.py: koreksi white balance (gray-world)",
+      "description": "Tahap opsional berdasarkan temuan dataset: acuan hangat vs citra gelap netral. Implementasi gray-world atau white-patch sederhana. Diuji sebagai eksperimen (T31), bukan diasumsikan membantu.",
+      "role": "ketua",
+      "priority": "disarankan",
+      "depends_on": [
+        "T22",
+        "T08"
+      ],
+      "prd_refs": [
+        "9.4",
+        "1 (ΔE)"
+      ],
+      "outputs": [
+        "src/enhance.py"
+      ],
+      "acceptance_criteria": [
+        "Bisa dinyalakan/dimatikan lewat konfigurasi pipeline"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T27",
+      "phase": "P4",
+      "title": "src/pipeline.py: pipeline terkonfigurasi (F3)",
+      "description": "Pipeline dibangun dari dict/JSON: color_space, order (denoise→contrast atau sebaliknya), metode + parameter tiap tahap, white balance on/off, unsharp. Fungsi run_image(path) dan run_folder(dir, out_dir). Opsi simpan keluaran antartahap untuk analisis kegagalan.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T23",
+        "T24",
+        "T25"
+      ],
+      "prd_refs": [
+        "6",
+        "F3"
+      ],
+      "outputs": [
+        "src/pipeline.py",
+        "configs/default.json"
+      ],
+      "acceptance_criteria": [
+        "≥ 4 tahap berurutan",
+        "Bisa dijalankan untuk satu citra dan satu folder dari CLI",
+        "Keluaran antartahap bisa disimpan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T28",
+      "phase": "P5",
+      "title": "experiments/common.py: harness eksperimen khusus dev",
+      "description": "Runner yang menerima daftar konfigurasi, menjalankan evaluate(subset='dev'), menyimpan CSV per citra. Assert keras: skenario uji tidak pernah dimuat (gagal jika ada).",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T14",
+        "T27"
+      ],
+      "prd_refs": [
+        "5.5",
+        "F6",
+        "11"
+      ],
+      "outputs": [
+        "experiments/common.py"
+      ],
+      "acceptance_criteria": [
+        "Ada test yang membuktikan runner menolak skenario uji"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T29",
+      "phase": "P5",
+      "title": "Eksperimen: perbandingan metode perbaikan kontras",
+      "description": "Gamma vs HE vs CLAHE vs SSR/MSR vs gamma adaptif, dengan tahap lain tetap. Laporkan per kondisi.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T28"
+      ],
+      "prd_refs": [
+        "9.1",
+        "F6"
+      ],
+      "outputs": [
+        "experiments/exp_contrast.py",
+        "results/exp_contrast.csv"
+      ],
+      "acceptance_criteria": [
+        "Tabel mean ± std per metode dan per kondisi"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T30",
+      "phase": "P5",
+      "title": "Eksperimen: perbandingan metode reduksi derau",
+      "description": "Median vs Gaussian vs bilateral vs NLM. Perhatikan khusus K3 (ISO 3200) tempat derau paling relevan.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T28"
+      ],
+      "prd_refs": [
+        "9.1",
+        "F6"
+      ],
+      "outputs": [
+        "experiments/exp_denoise.py",
+        "results/exp_denoise.csv"
+      ],
+      "acceptance_criteria": [
+        "Tabel per metode, per kondisi, termasuk waktu eksekusi"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T31",
+      "phase": "P5",
+      "title": "Eksperimen: urutan tahap, ruang warna, dan white balance",
+      "description": "(a) denoise sebelum vs sesudah perbaikan kontras, (b) kanal luminans (YCrCb/Lab) vs tiap kanal RGB, (c) dengan vs tanpa white balance (T26), terutama dampaknya pada ΔE.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T28"
+      ],
+      "prd_refs": [
+        "6",
+        "9.1"
+      ],
+      "outputs": [
+        "experiments/exp_order_colorspace.py",
+        "results/exp_order_colorspace.csv"
+      ],
+      "acceptance_criteria": [
+        "Keputusan untuk tiap variabel ditulis dengan angka pendukung"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T32",
+      "phase": "P5",
+      "title": "Grid search parameter dan heatmap (F11)",
+      "description": "Gamma; CLAHE clip limit × ukuran tile (heatmap); ukuran kernel median/Gaussian; unsharp sigma × amount (heatmap). Hanya di dev. Pilih berdasarkan rata-rata SSIM/PSNR dev dan catat trade-off.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T29",
+        "T30"
+      ],
+      "prd_refs": [
+        "9.2",
+        "F11"
+      ],
+      "outputs": [
+        "experiments/tune.py",
+        "results/tuning/*.csv",
+        "results/figures/heatmap_*.png"
+      ],
+      "acceptance_criteria": [
+        "Setiap parameter terpilih punya tabel/heatmap pendukung"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T33",
+      "phase": "P5",
+      "title": "Uji Wilcoxon signed-rank di dev (F10)",
+      "description": "src/stats.py: wilcoxon_compare(df_a, df_b, metric) memakai scipy.stats.wilcoxon pada pasangan citra yang sama. Pakai untuk memutuskan antar dua metode teratas tiap tahap. Catat n kecil (30 citra dev) sebagai keterbatasan.",
+      "role": "penguji",
+      "priority": "disarankan",
+      "depends_on": [
+        "T29",
+        "T30",
+        "T31"
+      ],
+      "prd_refs": [
+        "F10",
+        "3.2",
+        "9.3"
+      ],
+      "outputs": [
+        "src/stats.py",
+        "results/wilcoxon_dev.csv"
+      ],
+      "acceptance_criteria": [
+        "p-value dan arah perbedaan dilaporkan untuk tiap perbandingan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T34",
+      "phase": "P5",
+      "title": "Kunci konfigurasi final",
+      "description": "Tulis configs/final.json, dan untuk setiap parameter cantumkan alasan berupa rujukan ke CSV/heatmap. Commit dengan tag sebelum menyentuh data uji.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T32",
+        "T33"
+      ],
+      "prd_refs": [
+        "9.3",
+        "16"
+      ],
+      "outputs": [
+        "configs/final.json",
+        "docs/parameter_rationale.md"
+      ],
+      "acceptance_criteria": [
+        "Git tag (misalnya config-locked) dibuat sebelum T35",
+        "Setiap parameter punya alasan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T35",
+      "phase": "P6",
+      "title": "Evaluasi akhir di citra uji",
+      "description": "Baseline, tiap metode alternatif utama, dan pipeline final pada 20 citra uji. Tabel keseluruhan dan per kondisi K1-K5 (mean ± std) serta tabel waktu eksekusi.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T34",
+        "T15"
+      ],
+      "prd_refs": [
+        "9.3",
+        "3.2"
+      ],
+      "outputs": [
+        "experiments/final_eval.py",
+        "results/final_test.csv",
+        "results/final_summary.md"
+      ],
+      "acceptance_criteria": [
+        "Pipeline final dibandingkan dengan baseline di semua metrik",
+        "Kondisi yang tidak membaik dilaporkan apa adanya"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T36",
+      "phase": "P6",
+      "title": "Uji Wilcoxon di citra uji",
+      "description": "Final vs baseline dan final vs alternatif terbaik kedua, untuk PSNR, SSIM, dan ΔE.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T35",
+        "T33"
+      ],
+      "prd_refs": [
+        "9.3",
+        "3.2"
+      ],
+      "outputs": [
+        "results/wilcoxon_test.csv"
+      ],
+      "acceptance_criteria": [
+        "Setiap klaim 'A lebih baik dari B' di laporan punya p-value"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T37",
+      "phase": "P6",
+      "title": "Pemilihan otomatis citra gagal dan panel (F8)",
+      "description": "Ambil 3-5 citra uji dengan skor terburuk (misalnya SSIM terendah, aturan ditulis di kode). Simpan panel: gelap | hasil | acuan | peta galat absolut, plus keluaran antartahap.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T35"
+      ],
+      "prd_refs": [
+        "F8",
+        "9.4"
+      ],
+      "outputs": [
+        "experiments/failure_cases.py",
+        "results/failures/*.png"
+      ],
+      "acceptance_criteria": [
+        "Pemilihan sepenuhnya otomatis dan bisa diulang"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T38",
+      "phase": "P6",
+      "title": "Analisis penyebab kegagalan per tahap",
+      "description": "Untuk tiap kasus gagal, tentukan tahap penyebab dari keluaran antartahap. Uji hipotesis: K5/K4 bayangan yang tidak ada di acuan (mismatch adegan, bukan kegagalan algoritma), derau berwarna di K3, halo CLAHE, saturasi, perbedaan white balance pada ΔE, dan kuantisasi 8-bit di area sangat gelap.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T37"
+      ],
+      "prd_refs": [
+        "9.4",
+        "3.2"
+      ],
+      "outputs": [
+        "docs/report/07_failure_analysis.md"
+      ],
+      "acceptance_criteria": [
+        "≥ 3 kasus, masing-masing dengan tahap penyebab, penjelasan, dan usulan perbaikan"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T39",
+      "phase": "P6",
+      "title": "Uji usulan perbaikan",
+      "description": "Implementasikan 1-2 perbaikan dari T38 (misalnya NLM berwarna untuk K3, clip CLAHE adaptif, mask bayangan untuk K4/K5). Setel di dev, lalu laporkan angkanya di uji sebagai hasil tambahan yang dipisah dari hasil utama.",
+      "role": "penguji",
+      "priority": "disarankan",
+      "depends_on": [
+        "T38"
+      ],
+      "prd_refs": [
+        "9.4",
+        "3.2"
+      ],
+      "outputs": [
+        "results/fix_eval.csv"
+      ],
+      "acceptance_criteria": [
+        "Hasil dilaporkan terpisah; konfigurasi utama tidak diubah diam-diam"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T40",
+      "phase": "P7",
+      "title": "run_all.py satu perintah (F9)",
+      "description": "Urutan: validasi dataset → audit ringkas → baca split.json → verifikasi dari nol → evaluasi final di uji → cetak tabel metrik. Flag --quick (skala kecil, subset) untuk demo dan --full untuk semua eksperimen.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T35",
+        "T20",
+        "T37"
+      ],
+      "prd_refs": [
+        "F9",
+        "3.2",
+        "16"
+      ],
+      "outputs": [
+        "run_all.py"
+      ],
+      "acceptance_criteria": [
+        "python run_all.py mencetak tabel metrik keseluruhan dan per kondisi tanpa intervensi manual"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T41",
+      "phase": "P7",
+      "title": "README.md",
+      "description": "Deskripsi, cara install, letak/unduh dataset, cara menjalankan run_all.py dan tiap eksperimen, struktur repo, perkiraan waktu jalan.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T40"
+      ],
+      "prd_refs": [
+        "10",
+        "16"
+      ],
+      "outputs": [
+        "README.md"
+      ],
+      "acceptance_criteria": [
+        "Orang luar bisa menjalankan proyek hanya dari README"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T42",
+      "phase": "P7",
+      "title": "Uji reproduksibilitas di lingkungan bersih",
+      "description": "Clone baru + venv baru + pip install + python run_all.py di mesin anggota lain. Bandingkan angka dengan results/final_test.csv.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T41"
+      ],
+      "prd_refs": [
+        "3.2"
+      ],
+      "outputs": [],
+      "acceptance_criteria": [
+        "Angka sama (atau selisih dijelaskan)"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T43",
+      "phase": "P8",
+      "title": "Laporan bab 1-4: pendahuluan, teori, dataset, rancangan pipeline",
+      "description": "Gunakan temuan dataset (EXIF sebenarnya, audit keselarasan, perbedaan adegan, split) dan diagram pipeline.",
+      "role": "data",
+      "priority": "wajib",
+      "depends_on": [
+        "T08",
+        "T11",
+        "T27"
+      ],
+      "prd_refs": [
+        "10"
+      ],
+      "outputs": [
+        "docs/report/01-04.md"
+      ],
+      "acceptance_criteria": [
+        "Bagian Dataset memuat cara pembuatan ground truth dan pengaturan kamera"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T44",
+      "phase": "P8",
+      "title": "Laporan bab 5-6: implementasi dari nol dan eksperimen",
+      "description": "Tabel verifikasi, tabel perbandingan metode, heatmap tuning, alasan tiap parameter.",
+      "role": "algoritma",
+      "priority": "wajib",
+      "depends_on": [
+        "T21",
+        "T34"
+      ],
+      "prd_refs": [
+        "10"
+      ],
+      "outputs": [
+        "docs/report/05-06.md"
+      ],
+      "acceptance_criteria": [
+        "Setiap keputusan merujuk ke angka"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T45",
+      "phase": "P8",
+      "title": "Laporan bab 7-8: hasil, analisis kegagalan, kesimpulan",
+      "description": "Tabel akhir uji, Wilcoxon, panel kegagalan, keterbatasan (n kecil, perbedaan adegan K4/K5, white balance acuan).",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T36",
+        "T38"
+      ],
+      "prd_refs": [
+        "10",
+        "9.3",
+        "9.4"
+      ],
+      "outputs": [
+        "docs/report/07-08.md"
+      ],
+      "acceptance_criteria": [
+        "Angka di laporan identik dengan CSV di results/"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T46",
+      "phase": "P8",
+      "title": "Lampiran: kontribusi dan pernyataan penggunaan AI",
+      "description": "Tabel kontribusi per anggota (tautkan ke commit) dan log penggunaan AI: alat, tujuan, bagian yang terbantu. Catat bahwa src/from_scratch.py dan tests/test_from_scratch.py ditulis dengan bantuan AI (Claude) atas izin dosen.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [],
+      "prd_refs": [
+        "10",
+        "15",
+        "16"
+      ],
+      "outputs": [
+        "docs/report/lampiran.md"
+      ],
+      "acceptance_criteria": [
+        "Setiap anggota tercantum dan punya commit atas nama sendiri"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T47",
+      "phase": "P8",
+      "title": "Susun PDF laporan 8-12 halaman",
+      "description": "Gabungkan bab, rapikan gambar dan tabel, periksa jumlah halaman di luar lampiran.",
+      "role": "penguji",
+      "priority": "wajib",
+      "depends_on": [
+        "T43",
+        "T44",
+        "T45",
+        "T46"
+      ],
+      "prd_refs": [
+        "10",
+        "16"
+      ],
+      "outputs": [
+        "laporan.pdf"
+      ],
+      "acceptance_criteria": [
+        "8-12 halaman di luar lampiran, sesuai sistematika PRD 10"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T48",
+      "phase": "P8",
+      "title": "Video/demo dan latihan tanya jawab",
+      "description": "Rekam demo run_all.py --quick dan contoh sebelum/sesudah per kondisi. Setiap anggota berlatih menjelaskan seluruh pipeline, termasuk kode dari nol.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T40",
+        "T35"
+      ],
+      "prd_refs": [
+        "10",
+        "13",
+        "15"
+      ],
+      "outputs": [
+        "demo.mp4 atau tautan"
+      ],
+      "acceptance_criteria": [
+        "Setiap anggota bisa menjawab pertanyaan tentang tahap mana pun"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "T49",
+      "phase": "P8",
+      "title": "Periksa kriteria penerimaan dan kumpulkan",
+      "description": "Centang seluruh daftar PRD 16, pastikan tautan repository bisa diakses, lalu kumpulkan lewat komti.",
+      "role": "ketua",
+      "priority": "wajib",
+      "depends_on": [
+        "T42",
+        "T47",
+        "T48"
+      ],
+      "prd_refs": [
+        "16",
+        "10"
+      ],
+      "outputs": [],
+      "acceptance_criteria": [
+        "Semua butir PRD 16 tercentang"
+      ],
+      "status": "todo"
+    }
+  ]
+}

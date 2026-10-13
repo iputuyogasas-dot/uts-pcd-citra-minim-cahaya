@@ -1,0 +1,24 @@
+{
+  "color_space": "ycrcb",
+  "order": "denoise_first",
+  "white_balance": null,
+  "denoise": {
+    "method": "none"
+  },
+  "contrast": [
+    {
+      "method": "adaptive_gamma",
+      "target": 0.38
+    },
+    {
+      "method": "clahe",
+      "clip": 1.0,
+      "tile": 16
+    }
+  ],
+  "sharpen": {
+    "sigma": 0.5,
+    "amount": 0.0
+  },
+  "saturation": 1.5
+}

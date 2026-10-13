@@ -1,0 +1,14 @@
+# Dataset lengkap (±150 MB) dibagikan lewat tautan; lihat README.
+DATASET NEW/
+data/cache/
+
+# Keluaran besar yang bisa dibuat ulang
+results/enhanced/
+results/demo/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.tmp.png
